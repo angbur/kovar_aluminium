@@ -230,6 +230,15 @@ footer .inner{flex-direction:row;flex-wrap:wrap;justify-content:space-between;ga
 .rec-info em{font-style:normal;font-size:14px;color:var(--steel)}
 @media (max-width:860px){.stage.sysview .step:first-child{padding:104px 16px 60vh}.case{grid-template-columns:1fr}.twin{grid-template-columns:1fr}.twin-view{height:300px}}
 @media (prefers-reduced-motion:reduce){.dg-h{animation:none}}
+.cue{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);z-index:4;display:flex;flex-direction:column;align-items:center;gap:7px;
+  background:none;border:0;padding:6px 10px;cursor:pointer;font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--steel);transition:opacity .35s}
+.cue i{display:block;width:22px;height:34px;border:1.5px solid var(--steel);border-radius:12px;position:relative}
+.cue i::after{content:"";position:absolute;left:50%;top:6px;width:3px;height:7px;margin-left:-1.5px;border-radius:2px;background:var(--accent);animation:cue 1.6s ease-in-out infinite}
+.cue:hover{color:var(--ink)} .cue:hover i{border-color:var(--ink)}
+.cue:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+@keyframes cue{0%{transform:translateY(0);opacity:0}25%{opacity:1}70%{transform:translateY(12px);opacity:1}100%{transform:translateY(14px);opacity:0}}
+@media (max-width:860px){.cue{left:auto;right:10px;bottom:12px;transform:none}.cue span{display:none}}
+@media (prefers-reduced-motion:reduce){.cue i::after{animation:none;top:12px}}
 .pin.hide{display:none}
 .pin::after{content:"";position:absolute;left:50%;top:100%;width:1px;height:var(--lead,0px);background:#7b858e;pointer-events:none}
 .no3d-msg{display:none}
@@ -280,7 +289,7 @@ body.no3d .no3d-msg{display:block;position:absolute;right:28px;bottom:24px;z-ind
         <h1>See where your part is made</h1>
         <p>One hall, ten stations. Follow a single order from the aluminium sheet to the truck.</p>
         <ul class="chips"><li>EN 15085 CL 1</li><li>EN 17460 A1</li><li>ISO 3834-2</li><li>EN 1090 EXC3</li></ul>
-        <div class="hint">Scroll to walk the line. Drag to rotate.</div>
+        <div class="hint">Drag the plan to rotate it.</div>
       </div>
       <div class="copy v-sys board" id="board">
         <div class="eyebrow">Connected systems</div>
@@ -408,6 +417,8 @@ body.no3d .no3d-msg{display:block;position:absolute;right:28px;bottom:24px;z-ind
     <button data-go="7"><span>Systems</span></button>
   </nav>
 
+  <button class="cue" id="cue" type="button" aria-label="Scroll down"><i></i><span>Scroll</span></button>
+
   <div class="no3d-msg">This browser cannot display 3D graphics. All page content is still available.</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -438,8 +449,14 @@ body.no3d .no3d-msg{display:block;position:absolute;right:28px;bottom:24px;z-ind
     navBtns.forEach(function(b){ b.setAttribute('aria-current', (+b.dataset.go === cur) ? 'true' : 'false'); });
   }
   navBtns.forEach(function(b){ b.addEventListener('click', function(){ goTo(navTargets[+b.dataset.go]); }); });
-  scroller.addEventListener('scroll', setNav, { passive: true });
-  setNav();
+  var cue = document.getElementById('cue');
+  function setCue(){ var top = scroller.scrollTop < 60; cue.style.opacity = top ? '1' : '0'; cue.style.pointerEvents = top ? 'auto' : 'none'; }
+  cue.addEventListener('click', function(){
+    if (stage.classList.contains('sysview')) scroller.scrollBy({ top: scroller.clientHeight * 0.8, behavior: reduce ? 'auto' : 'smooth' });
+    else goTo(steps[1]);
+  });
+  scroller.addEventListener('scroll', function(){ setNav(); setCue(); }, { passive: true });
+  setNav(); setCue();
 
   function progress(){
     var s = scroller.scrollTop, n = steps.length, i = 0, k;
