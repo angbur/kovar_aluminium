@@ -1369,8 +1369,13 @@ body.no3d .no3d-msg{display:block;position:absolute;right:28px;bottom:24px;z-ind
   var railEl = document.querySelector('.rail'); railEl.style.transition = 'opacity .3s';
   var vFloor = document.getElementById('v-floor'), vSys = document.getElementById('v-sys'), viewsEl = document.getElementById('views');
   function setView(sys){
+    if ((sysTarget === 1) === sys) return;
+    // remember where the visitor is before the text blocks change height
+    var at = Math.round(progress()), below = scroller.scrollTop > solid.offsetTop - scroller.clientHeight * 0.5;
     sysTarget = sys ? 1 : 0; stage.classList.toggle('sysview', sys);
     vFloor.setAttribute('aria-pressed', sys ? 'false' : 'true'); vSys.setAttribute('aria-pressed', sys ? 'true' : 'false');
+    if (below || at === 0) scroller.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });   // from the end of the page, start the other view from its top
+    else scroller.scrollTop = steps[at].offsetTop;                                                 // at a station, stay at that station
   }
   vFloor.addEventListener('click', function(){ setView(false); });
   vSys.addEventListener('click', function(){ setView(true); });
