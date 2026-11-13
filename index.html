@@ -354,7 +354,6 @@ body.no3d .no3d-msg{display:block;position:absolute;right:28px;bottom:24px;z-ind
         <div class="madeh">On the pallets</div>
         <ul class="made"><li>Ceiling module for a tram</li><li>Bus side flap and wheel arch</li><li>Facade cassettes</li></ul>
         <div class="data"><b>Data sent</b>Shipping notice goes to the customer by EDI before the truck leaves.</div>
-        <a class="btn" href="#wycena" id="to-rfq">Request a quote</a>
       </div>
     </section>
 
@@ -393,24 +392,6 @@ body.no3d .no3d-msg{display:block;position:absolute;right:28px;bottom:24px;z-ind
         </div>
       </section>
 
-      <section class="band" id="wycena" data-nav>
-        <div class="inner">
-          <div class="eyebrow">Request for quotation</div>
-          <h2>Have a drawing? Let’s quote it</h2>
-          <form id="rfq" novalidate>
-            <div class="f"><label for="rfq-sector">Sector</label>
-              <select id="rfq-sector"><option>Rail and trams</option><option>Buses and coaches</option><option>Architecture</option><option>Design</option></select></div>
-            <div class="f"><label for="rfq-series">Batch size</label>
-              <select id="rfq-series"><option>Prototype, 1 to 5 pcs</option><option>Small batch, up to 100 pcs</option><option>Series, over 100 pcs</option></select></div>
-            <div class="f full"><label for="rfq-what">Type of part</label><input id="rfq-what" type="text" placeholder="e.g. ceiling module, side flap, cassette"></div>
-            <div class="f"><label for="rfq-mail">Work email</label><input id="rfq-mail" type="email" placeholder="name@company.com"></div>
-            <div class="f"><label for="rfq-file">Drawing or model (STEP, PDF)</label><input id="rfq-file" type="file"></div>
-            <div class="f full"><label for="rfq-msg">Requirements: standards, alloy, deadline</label><textarea id="rfq-msg"></textarea></div>
-            <div class="f full"><button class="btn" type="submit">Send request</button></div>
-            <div class="formnote" id="rfq-note" role="status">This is a prototype, so the form sends nothing. In the final version the request goes to the sales team.</div>
-          </form>
-        </div>
-      </section>
 
       <footer><div class="inner"><span>KOVARO Aluminium is a company invented for this prototype. The numbers, certificates, systems, live data and hall layout are examples.</span><span>Machines are simplified; the final plan would mirror the real hall.</span></div></footer>
     </div>
@@ -425,7 +406,6 @@ body.no3d .no3d-msg{display:block;position:absolute;right:28px;bottom:24px;z-ind
     <button data-go="5"><span>Assembly</span></button>
     <button data-go="6"><span>Dispatch</span></button>
     <button data-go="7"><span>Systems</span></button>
-    <button data-go="8"><span>Quote</span></button>
   </nav>
 
   <div class="no3d-msg">This browser cannot display 3D graphics. All page content is still available.</div>
@@ -460,8 +440,6 @@ body.no3d .no3d-msg{display:block;position:absolute;right:28px;bottom:24px;z-ind
   navBtns.forEach(function(b){ b.addEventListener('click', function(){ goTo(navTargets[+b.dataset.go]); }); });
   scroller.addEventListener('scroll', setNav, { passive: true });
   setNav();
-  document.getElementById('to-rfq').addEventListener('click', function(e){ e.preventDefault(); goTo(document.getElementById('wycena')); });
-  document.getElementById('rfq').addEventListener('submit', function(e){ e.preventDefault(); document.getElementById('rfq-note').classList.add('on'); });
 
   function progress(){
     var s = scroller.scrollTop, n = steps.length, i = 0, k;
