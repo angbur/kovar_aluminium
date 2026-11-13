@@ -248,13 +248,15 @@ body.no3d .no3d-msg{display:block;position:absolute;right:28px;bottom:24px;z-ind
 @media (max-width:860px){
   body{font-size:16px}
   .shade{background:linear-gradient(0deg,rgba(20,23,26,.97) 0%,rgba(20,23,26,.84) 40%,rgba(20,23,26,0) 68%)}
-  .top{padding:8px 190px 8px 16px}
+  .top{padding:8px 178px 8px 16px}
+  .brand{font-size:18px;letter-spacing:.05em;white-space:nowrap}
   .step{align-items:flex-end;padding:52vh 16px 40px}
   .band{padding:56px 16px}
   .rail{right:8px;top:28%}
   .rail button span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
   form{grid-template-columns:1fr}
 }
+@media (max-width:480px){.brand{font-size:14.5px;letter-spacing:.04em}.views button{padding:8px 9px;font-size:11px;letter-spacing:.06em}}
 @media (prefers-reduced-motion:reduce){.rail button::after{transition:none}}
 </style>
 </head>
