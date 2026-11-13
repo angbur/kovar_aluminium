@@ -256,6 +256,8 @@ body.no3d .no3d-msg{display:block;position:absolute;right:28px;bottom:24px;z-ind
   .rail button span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
   form{grid-template-columns:1fr}
 }
+@media (max-width:860px){.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tabs button{font-size:14px;line-height:1.25;padding:11px 10px;text-align:center;display:flex;align-items:center;justify-content:center;min-height:52px}
+  .recs{display:grid;grid-template-columns:repeat(3,1fr)}.recs button{text-align:center;padding:9px 6px;font-size:13.5px}.recs button:first-child{grid-column:1 / -1}}
 @media (max-width:480px){.brand{font-size:14.5px;letter-spacing:.04em}.views button{padding:8px 9px;font-size:11px;letter-spacing:.06em}}
 @media (prefers-reduced-motion:reduce){.rail button::after{transition:none}}
 </style>
