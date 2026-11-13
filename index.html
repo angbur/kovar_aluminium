@@ -234,6 +234,7 @@ footer .inner{flex-direction:row;flex-wrap:wrap;justify-content:space-between;ga
   background:none;border:0;padding:6px 10px;cursor:pointer;font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--steel);transition:opacity .35s}
 .cue i{display:block;width:22px;height:34px;border:1.5px solid var(--steel);border-radius:12px;position:relative}
 .cue i::after{content:"";position:absolute;left:50%;top:6px;width:3px;height:7px;margin-left:-1.5px;border-radius:2px;background:var(--accent);animation:cue 1.6s ease-in-out infinite}
+.stage.sysview .cue{display:none}
 .cue:hover{color:var(--ink)} .cue:hover i{border-color:var(--ink)}
 .cue:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 @keyframes cue{0%{transform:translateY(0);opacity:0}25%{opacity:1}70%{transform:translateY(12px);opacity:1}100%{transform:translateY(14px);opacity:0}}
