@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KAMET – życzenia świąteczne</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* layout: one full-screen 3D scene; greeting centred in the lower third; small controls in the corners */
+  color-scheme: dark;
+  --bg:#101315;
+  --ink:#eef0f1;
+  --muted:#8f99a2;
+  --steel:#cfd6dc;
+  --line:#2f363c;
+  --accent:#e8622a;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow","Segoe UI",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;overflow:hidden}
+.stage{position:relative;height:100%;overflow:hidden}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,rgba(8,9,10,0) 38%,rgba(8,9,10,.7) 100%)}
+.top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 22px;z-index:3}
+.tag{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:3px 9px;border-radius:3px}
+.langs{display:flex;border:1px solid var(--line);border-radius:3px;background:rgba(16,19,21,.7)}
+.langs button,.ctl button{all:unset;cursor:pointer;font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:8px 13px}
+.langs button{border-bottom:2px solid transparent}
+.langs button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.langs button:hover,.ctl button:hover{color:var(--ink)}
+.langs button:focus-visible,.ctl button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.greet{position:absolute;left:0;right:0;bottom:8%;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 20px;text-align:center;pointer-events:none}
+.for{font-size:13px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);min-height:1em}
+h1{font-family:var(--display);font-weight:500;font-size:clamp(40px,7vw,78px);line-height:1;margin:0;letter-spacing:.06em;text-transform:uppercase;text-wrap:balance}
+.greet p{margin:0;max-width:46ch;color:var(--steel);font-size:clamp(16px,1.6vw,19px);text-wrap:balance}
+.rule{width:44px;height:2px;background:var(--accent)}
+.sig{display:flex;flex-direction:column;gap:1px;font-size:15px}
+.sig b{font-weight:600}
+.sig span{color:var(--muted);font-size:13px}
+.logo{margin-top:6px;display:flex;align-items:center;justify-content:center;min-height:30px}
+.logo img{height:30px;width:auto;display:block}
+.logo img + span{display:none}
+.logo span{font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:.16em;color:var(--ink)}
+.ctl{position:absolute;left:0;right:0;bottom:14px;z-index:3;display:flex;justify-content:center;gap:6px}
+.made{position:absolute;right:22px;bottom:20px;z-index:2;font-size:12px;color:var(--muted);letter-spacing:.06em;max-width:24ch;text-align:right}
+.no3d .made{display:none}
+@media (max-width:720px){.made{display:none}.greet{bottom:12%}}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <div class="vig"></div>
+
+  <div class="top">
+    <span class="tag">Projekt do akceptacji</span>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" data-lang="pl" aria-pressed="true">PL</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+
+  <div class="greet" id="greet">
+    <div class="for" id="for"></div>
+    <h1 id="g-h">Wesołych Świąt</h1>
+    <p id="g-p">Dziękujemy za wspólny rok. Życzymy spokojnych Świąt i dobrego początku 2027 roku.</p>
+    <div class="rule"></div>
+    <div class="sig"><b>Józefa Haras</b><span id="g-s">Prezes Zarządu, KAMET S.A.</span></div>
+    <!-- Logo: put the official file next to this page as logo.svg and it replaces the text wordmark automatically -->
+    <div class="logo"><img src="logo.svg" alt="KAMET S.A." onerror="this.remove()"><span>KAMET S.A.</span></div>
+  </div>
+
+  <div class="made" id="g-m">Wycięte, zagięte i wykończone w aluminium.</div>
+  <div class="ctl"><button type="button" id="replay">Replay</button><button type="button" id="skip">Skip</button></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/GammaCorrectionShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script>
+(function(){
+  var stage = document.getElementById('stage'), canvas = document.getElementById('scene'), greet = document.getElementById('greet');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- words
+  var TXT = {
+    en: { h: 'Season’s greetings', p: 'Thank you for a year of working together. We wish you calm holidays and a good start to 2027.', s: 'President of the Board, KAMET S.A.', m: 'Cut, folded and finished in aluminium.', f: 'For ', replay: 'Replay', skip: 'Skip' },
+    pl: { h: 'Wesołych Świąt', p: 'Dziękujemy za wspólny rok. Życzymy spokojnych Świąt i dobrego początku 2027 roku.', s: 'Prezes Zarządu, KAMET S.A.', m: 'Wycięte, zagięte i wykończone w aluminium.', f: 'Dla: ', replay: 'Od nowa', skip: 'Pomiń' },
+    de: { h: 'Frohe Festtage', p: 'Vielen Dank für die gemeinsame Arbeit in diesem Jahr. Wir wünschen Ihnen ruhige Feiertage und einen guten Start ins Jahr 2027.', s: 'Vorstandsvorsitzende, KAMET S.A.', m: 'Geschnitten, gekantet und veredelt in Aluminium.', f: 'Für ', replay: 'Nochmal', skip: 'Überspringen' }
+  };
+  // the recipient's name can ride in the link as a plain hash, e.g. #Anna-Kowalska
+  var who = '';
+  try { who = decodeURIComponent((location.hash || '').slice(1)).replace(/[-_]+/g, ' ').replace(/[^A-Za-zÀ-ž .']/g, '').trim().slice(0, 40); } catch (e) { who = ''; }
+  var lang = 'pl';
+  function setLang(l){
+    lang = l; var t = TXT[l]; document.documentElement.lang = l;
+    document.getElementById('g-h').textContent = t.h; document.getElementById('g-p').textContent = t.p;
+    document.getElementById('g-s').textContent = t.s; document.getElementById('g-m').textContent = t.m;
+    document.getElementById('for').textContent = who ? t.f + who : '';
+    document.getElementById('replay').textContent = t.replay; document.getElementById('skip').textContent = t.skip;
+    Array.prototype.forEach.call(document.querySelectorAll('.langs button'), function(b){ b.setAttribute('aria-pressed', b.dataset.lang === l ? 'true' : 'false'); });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.langs button'), function(b){ b.addEventListener('click', function(){ setLang(b.dataset.lang); }); });
+  setLang('pl');
+
+  var renderer = null;
+  if (window.THREE) { try { renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true }); } catch (e) { renderer = null; } }
+  if (!renderer) { stage.classList.add('no3d'); document.querySelector('.ctl').style.display = 'none'; return; }
+
+  var BG = 0x101315, BGLIN = new THREE.Color(BG).convertSRGBToLinear();
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  var scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(35, 1, 1.2, 60);
+
+  // studio reflections: this is what makes the metal read as metal
+  (function(){
+    var c = document.createElement('canvas'); c.width = 512; c.height = 256; var x = c.getContext('2d');
+    var g = x.createLinearGradient(0, 0, 0, 256); g.addColorStop(0, '#8b959e'); g.addColorStop(0.5, '#2a3036'); g.addColorStop(1, '#0c0e10'); x.fillStyle = g; x.fillRect(0, 0, 512, 256);
+    function soft(px, py, w, h, col){ var r = x.createRadialGradient(px, py, 0, px, py, w); r.addColorStop(0, col); r.addColorStop(1, 'rgba(0,0,0,0)');
+      x.save(); x.translate(px, py); x.scale(1, h / w); x.translate(-px, -py); x.fillStyle = r; x.fillRect(px - w, py - w, w * 2, w * 2); x.restore(); }
+    soft(120, 60, 110, 30, 'rgba(255,255,255,1)'); soft(360, 48, 130, 22, 'rgba(255,246,235,.95)');
+    soft(470, 130, 46, 80, 'rgba(255,150,90,.85)'); soft(40, 140, 40, 70, 'rgba(200,222,255,.7)'); soft(250, 200, 120, 18, 'rgba(255,130,70,.4)');
+    soft(230, 96, 70, 50, 'rgba(255,255,255,.85)'); soft(300, 150, 50, 40, 'rgba(255,236,214,.6)'); soft(180, 150, 40, 36, 'rgba(214,228,255,.5)');
+    var t = new THREE.CanvasTexture(c); t.mapping = THREE.EquirectangularReflectionMapping; t.encoding = THREE.sRGBEncoding;
+    var pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromEquirectangular(t).texture; t.dispose(); pm.dispose();
+  })();
+  scene.add(new THREE.HemisphereLight(0xdfe6ee, 0x101315, 0.3));
+  var front = new THREE.DirectionalLight(0xffffff, 0); front.position.set(1.6, 3.2, 6); scene.add(front);
+  var key = new THREE.DirectionalLight(0xffffff, 0.8); key.position.set(3, 6, 5); scene.add(key);
+  var rimL = new THREE.PointLight(0xff7a3a, 0, 9); rimL.position.set(-1.6, 2.6, -1.8); scene.add(rimL);
+
+  // brushed aluminium: thousands of short hairlines rather than a few wide bands
+  var brushed = (function(){
+    var c = document.createElement('canvas'); c.width = c.height = 1024; var x = c.getContext('2d'), i;
+    x.fillStyle = '#c3cad0'; x.fillRect(0, 0, 1024, 1024);
+    for (i = 0; i < 40; i++) { x.fillStyle = 'rgba(' + (i % 2 ? '255,255,255' : '60,68,76') + ',.035)'; x.fillRect(0, Math.random() * 1024, 1024, 20 + Math.random() * 90); }
+    for (i = 0; i < 26000; i++) { var w = 40 + Math.random() * 380;
+      x.fillStyle = 'rgba(' + (Math.random() > 0.5 ? '255,255,255' : '36,42,48') + ',' + (0.03 + Math.random() * 0.09) + ')'; x.fillRect(Math.random() * 1024 - w / 2, Math.random() * 1024, w, 1); }
+    var t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.42, 0.42); t.anisotropy = 8; return t;
+  })();
+
+  // ---------- the star outline, in the plane of the sheet
+  var R = 1.15, r = 0.5, OUT = [];
+  for (var k = 0; k < 10; k++) { var a = Math.PI / 2 + k * Math.PI / 5, rad = k % 2 ? r : R; OUT.push([Math.cos(a) * rad, Math.sin(a) * rad]); }
+
+  // a 5 mm plate with a star-shaped hole; a solid plate covers it until the cut closes, so no seam shows early
+  var sheetShape = new THREE.Shape(); var S = 4.2, TH = 0.06;
+  sheetShape.moveTo(-S, -S); sheetShape.lineTo(S, -S); sheetShape.lineTo(S, S); sheetShape.lineTo(-S, S); sheetShape.lineTo(-S, -S);
+  var hole = new THREE.Path(); OUT.forEach(function(p, i){ if (i) hole.lineTo(p[0], p[1]); else hole.moveTo(p[0], p[1]); }); hole.lineTo(OUT[0][0], OUT[0][1]); sheetShape.holes.push(hole);
+  var sheetMat = new THREE.MeshStandardMaterial({ map: brushed, metalness: 1, roughness: 0.27, envMapIntensity: 1.5, transparent: true });
+  var rig = new THREE.Group(); scene.add(rig);
+  var sheet = new THREE.Mesh(new THREE.ExtrudeGeometry(sheetShape, { depth: TH, bevelEnabled: false }), sheetMat); sheet.rotation.x = -Math.PI / 2; sheet.position.y = -TH; rig.add(sheet);
+  var blank = new THREE.Mesh(new THREE.BoxGeometry(2 * S, TH, 2 * S), sheetMat); blank.position.y = -TH / 2 + 0.0006; rig.add(blank);
+  (function(){ var u = blank.geometry.attributes.uv, p = blank.geometry.attributes.position, i; for (i = 0; i < u.count; i++) u.setXY(i, p.getX(i), -p.getZ(i)); u.needsUpdate = true; })();
+  // cutting bed under the plate: dark steel slats, seen through the kerf and the hole
+  var bedMat = new THREE.MeshStandardMaterial({ color: 0x1a1d20, metalness: 0.8, roughness: 0.5, transparent: true });
+  for (var bz = -3.9; bz <= 3.91; bz += 0.3) { var sl = new THREE.Mesh(new THREE.BoxGeometry(2 * S, 0.22, 0.035), bedMat); sl.position.set(0, -TH - 0.13, bz); rig.add(sl); }
+  var under = new THREE.PointLight(0xff8a4a, 0, 2.2); rig.add(under);
+
+  var starMat = new THREE.MeshStandardMaterial({ map: brushed, metalness: 1, roughness: 0.27, envMapIntensity: 1.5, flatShading: true, side: THREE.DoubleSide });
+  var starGeo = new THREE.BufferGeometry(), sp = new Float32Array(10 * 9), su = new Float32Array(10 * 6);
+  starGeo.setAttribute('position', new THREE.BufferAttribute(sp, 3)); starGeo.setAttribute('uv', new THREE.BufferAttribute(su, 2));
+  function fold(f){                                  // f = 0 flat blank, 1 fully folded star
+    for (var i = 0; i < 10; i++) {
+      var p = OUT[i], q = OUT[(i + 1) % 10], o = i * 9, yp = (i % 2 ? -0.1 : 0) * f, yq = ((i + 1) % 2 ? -0.1 : 0) * f;
+      sp[o] = 0; sp[o + 1] = 0.42 * f; sp[o + 2] = 0;
+      sp[o + 3] = p[0]; sp[o + 4] = yp; sp[o + 5] = -p[1];
+      sp[o + 6] = q[0]; sp[o + 7] = yq; sp[o + 8] = -q[1];
+      var u = i * 6; su[u] = 0; su[u + 1] = 0; su[u + 2] = p[0]; su[u + 3] = p[1]; su[u + 4] = q[0]; su[u + 5] = q[1];
+    }
+    starGeo.attributes.position.needsUpdate = true; starGeo.attributes.uv.needsUpdate = true; starGeo.computeVertexNormals();
+  }
+  fold(0);
+  var starTilt = new THREE.Group(), starSpin = new THREE.Group(); scene.add(starTilt); starTilt.add(starSpin);
+  starSpin.add(new THREE.Mesh(starGeo, starMat));
+  var edgeMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
+  var edgeGeo = new THREE.BufferGeometry(); edgeGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(20 * 6), 3));
+  starSpin.add(new THREE.LineSegments(edgeGeo, edgeMat));
+  function foldEdges(f){                             // bright fold lines: ridges and valleys
+    var e = edgeGeo.attributes.position.array;
+    for (var i = 0; i < 10; i++) { var p = OUT[i], o = i * 6; e[o] = 0; e[o + 1] = 0.42 * f + 0.002; e[o + 2] = 0; e[o + 3] = p[0]; e[o + 4] = (i % 2 ? -0.1 : 0) * f + 0.002; e[o + 5] = -p[1]; }
+    edgeGeo.attributes.position.needsUpdate = true;
+  }
+
+  // ---------- the cut: a bright kerf that follows the laser round the outline
+  var CUT_N = 400, cutPos = new Float32Array((CUT_N + 1) * 3), per = [], total = 0;
+  for (k = 0; k < 10; k++) { var p0 = OUT[k], p1 = OUT[(k + 1) % 10]; per.push(Math.hypot(p1[0] - p0[0], p1[1] - p0[1])); total += per[k]; }
+  function outlineAt(u, out){                        // u in 0..1 along the outline
+    var d = u * total, i = 0; while (i < 9 && d > per[i]) { d -= per[i]; i++; }
+    var t = Math.min(1, d / per[i]), a0 = OUT[i], b0 = OUT[(i + 1) % 10];
+    out.x = a0[0] + (b0[0] - a0[0]) * t; out.z = -(a0[1] + (b0[1] - a0[1]) * t);
+  }
+  var tmp = { x: 0, z: 0 };
+  for (k = 0; k <= CUT_N; k++) { outlineAt(k / CUT_N, tmp); cutPos[k * 3] = tmp.x; cutPos[k * 3 + 1] = 0.014; cutPos[k * 3 + 2] = tmp.z; }
+  var cutCol = new Float32Array((CUT_N + 1) * 3);
+  var cutGeo = new THREE.BufferGeometry(); cutGeo.setAttribute('position', new THREE.BufferAttribute(cutPos, 3)); cutGeo.setAttribute('color', new THREE.BufferAttribute(cutCol, 3));
+  var cutMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true });
+  var cutLine = new THREE.Group(); scene.add(cutLine);
+  [0.993, 0.9965, 1, 1.0035, 1.007].forEach(function(sc){ var l = new THREE.Line(cutGeo, cutMat); l.scale.set(sc, 1, sc); cutLine.add(l); });   // five passes give the kerf some width
+  // cutting head: nozzle on an arm that runs out of frame
+  var head = new THREE.Group(); scene.add(head);
+  var steel = new THREE.MeshStandardMaterial({ color: 0x2b3035, metalness: 0.95, roughness: 0.3, envMapIntensity: 1.4 });
+  var brass = new THREE.MeshStandardMaterial({ color: 0xc98a4a, metalness: 1, roughness: 0.25, envMapIntensity: 1.4 });
+  var tip = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.008, 0.11, 20), brass); tip.position.y = 0.085; head.add(tip);
+  var cone = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.028, 0.16, 28), steel); cone.position.y = 0.22; head.add(cone);
+  var body = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.62, 28), steel); body.position.y = 0.61; head.add(body);
+  var band = new THREE.Mesh(new THREE.CylinderGeometry(0.104, 0.104, 0.035, 28), new THREE.MeshBasicMaterial({ color: 0xe8622a })); band.position.y = 0.4; head.add(band);
+  var arm = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.12, 9), steel); arm.position.set(0, 0.86, -4.5); head.add(arm);
+  var spot = new THREE.Mesh(new THREE.SphereGeometry(0.022, 14, 14), new THREE.MeshBasicMaterial({ color: 0xfff4e0 })); spot.position.y = 0.012; head.add(spot);
+  var beam = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.03, 6), new THREE.MeshBasicMaterial({ color: 0xffe2c0 })); beam.position.y = 0.02; head.add(beam);
+  var headL = new THREE.PointLight(0xffb070, 0, 1.6); headL.position.y = 0.06; head.add(headL);
+
+  // sparks and, later, slow flakes
+  function particles(N, color, size, opacity){
+    var pos = new Float32Array(N * 3), vel = new Float32Array(N * 3), life = new Float32Array(N), i;
+    for (i = 0; i < N; i++) pos[i * 3 + 1] = -9;
+    var geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    var mat = new THREE.PointsMaterial({ color: color, size: size, transparent: true, opacity: opacity, blending: THREE.AdditiveBlending, depthWrite: false });
+    var pts = new THREE.Points(geo, mat); pts.frustumCulled = false; scene.add(pts);
+    return { pos: pos, vel: vel, life: life, geo: geo, mat: mat, n: N };
+  }
+  var sparks = particles(200, 0xffc88a, 0.028, 1), flakes = particles(170, 0xdfe6ee, 0.045, 0);
+  for (k = 0; k < flakes.n; k++) { flakes.pos[k * 3] = (Math.random() - 0.5) * 9; flakes.pos[k * 3 + 1] = Math.random() * 6 - 0.5; flakes.pos[k * 3 + 2] = (Math.random() - 0.5) * 5 - 0.5; flakes.vel[k * 3] = Math.random() * 6.3; }
+
+  // soft halo behind the finished star
+  var halo = (function(){
+    var c = document.createElement('canvas'); c.width = c.height = 256; var x = c.getContext('2d');
+    var g = x.createRadialGradient(128, 128, 0, 128, 128, 128); g.addColorStop(0, 'rgba(255,140,80,.34)'); g.addColorStop(0.35, 'rgba(255,120,60,.1)'); g.addColorStop(0.75, 'rgba(255,120,60,0)'); g.addColorStop(1, 'rgba(255,120,60,0)');
+    x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+    var m = new THREE.Mesh(new THREE.PlaneGeometry(7, 7), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+    m.position.set(0, 2.4, -1.6); scene.add(m); return m;
+  })();
+
+  var composer = null;
+  if (THREE.EffectComposer && THREE.RenderPass && THREE.ShaderPass && THREE.UnrealBloomPass && THREE.GammaCorrectionShader) {
+    try {
+      composer = new THREE.EffectComposer(renderer);
+      composer.addPass(new THREE.RenderPass(scene, camera));
+      composer.addPass(new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), 0.42, 0.45, 0.85));
+      composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));
+    } catch (err) { composer = null; }
+  }
+  renderer.setClearColor(composer ? BGLIN : new THREE.Color(BG), 1);
+
+  var far = 1;
+  function resize(){
+    var w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return;
+    renderer.setSize(w, h, false); if (composer) composer.setSize(w, h);
+    camera.aspect = w / h; far = Math.max(1, 0.9 / camera.aspect); camera.updateProjectionMatrix();
+  }
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+  window.addEventListener('resize', resize); resize();
+
+  function c01(v){ return Math.min(1, Math.max(0, v)); }
+  function sm(t){ t = c01(t); return t * t * (3 - 2 * t); }
+  var END = 11, T = reduce ? END + 5 : 0, last = performance.now();
+  var camA = new THREE.Vector3(0.7, 2.25, 3.5), camB = new THREE.Vector3(0, 1.75, 6.7), tgA = new THREE.Vector3(0, 0, 0.1), tgB = new THREE.Vector3(0, 1.55, 0);
+  var pos = new THREE.Vector3(), tgt = new THREE.Vector3();
+  document.getElementById('replay').addEventListener('click', function(){ T = 0; for (var i = 0; i < sparks.n; i++) { sparks.life[i] = 0; sparks.pos[i * 3 + 1] = -9; } });
+  document.getElementById('skip').addEventListener('click', function(){ T = END + 5; });
+  window.__cardT = function(v){ T = v; };   // lets a reviewer jump to a moment of the animation
+
+  function frame(){
+    requestAnimationFrame(frame);
+    var now = performance.now(), dt = Math.min(0.05, (now - last) / 1000); last = now; T += dt;
+
+    // timeline: 0.8-4.6 s cut · 5.4-7.4 lift, sheet drops away · 6.8-9 tilt and fold · 9.2 words
+    var cut = c01((T - 0.8) / 3.8), lift = sm((T - 5.4) / 2.0), tilt = sm((T - 6.8) / 1.8), fo = sm((T - 7.3) / 1.7), done = sm((T - 9.0) / 1.5);
+    var cutting = T > 0.8 && cut < 1;
+
+    var nCut = Math.floor(cut * CUT_N);
+    cutGeo.setDrawRange(0, nCut + 1);
+    for (var ci = 0; ci <= nCut; ci++) {              // kerf glows near the head and cools to a dark gap behind it
+      var heat = 1 - sm(((nCut - ci) / CUT_N) * total / 1.1), cool = sm((T - 4.6) / 0.8), hh = heat * (1 - cool);
+      cutCol[ci * 3] = 0.03 + 0.97 * hh; cutCol[ci * 3 + 1] = 0.032 + 0.62 * hh * hh; cutCol[ci * 3 + 2] = 0.035 + 0.25 * hh * hh * hh;
+    }
+    cutGeo.attributes.color.needsUpdate = true;
+    cutMat.opacity = 1 - sm((T - 5.3) / 0.5);
+    cutLine.visible = T > 0.8 && cutMat.opacity > 0.01;
+    outlineAt(cut, tmp);
+    var park = sm((T - 4.6) / 0.9), arrive = sm(T / 0.8);                 // head glides in, cuts, then lifts clear
+    head.position.set(tmp.x, 0.9 * (1 - arrive) + 2.6 * park * park, tmp.z - 1.2 * park);
+    head.visible = T < 5.6;
+    headL.intensity = cutting ? 1.3 + Math.random() * 0.9 : 0;
+    under.position.set(tmp.x, -0.16, tmp.z); under.intensity = cutting ? 2.2 + Math.random() : 0;
+    spot.visible = beam.visible = cutting; spot.scale.setScalar(0.8 + Math.random() * 0.6);
+
+    var i, a3;
+    for (i = 0; i < sparks.n; i++) {
+      a3 = i * 3; sparks.life[i] -= dt;
+      if (sparks.life[i] <= 0) {
+        if (!cutting) { sparks.pos[a3 + 1] = -9; continue; }
+        sparks.pos[a3] = tmp.x; sparks.pos[a3 + 1] = 0.03; sparks.pos[a3 + 2] = tmp.z;
+        sparks.vel[a3] = (Math.random() - 0.5) * 3.4; sparks.vel[a3 + 1] = 0.25 + Math.random() * 1.5; sparks.vel[a3 + 2] = (Math.random() - 0.5) * 3.4;
+        sparks.life[i] = 0.2 + Math.random() * 0.55;
+      } else {
+        sparks.vel[a3 + 1] -= 9.8 * dt;
+        sparks.pos[a3] += sparks.vel[a3] * dt; sparks.pos[a3 + 1] += sparks.vel[a3 + 1] * dt; sparks.pos[a3 + 2] += sparks.vel[a3 + 2] * dt;
+        if (sparks.pos[a3 + 1] < 0.008) { sparks.pos[a3 + 1] = 0.008; sparks.vel[a3 + 1] *= -0.35; sparks.vel[a3] *= 0.6; sparks.vel[a3 + 2] *= 0.6; }
+      }
+    }
+    sparks.geo.attributes.position.needsUpdate = true;
+
+    // sheet falls away once the star is free
+    var drop = sm((T - 5.9) / 1.9);
+    var free = T >= 4.6;                       // the moment the outline closes
+    blank.visible = !free; starTilt.visible = free; sheet.visible = free;
+    rig.position.y = -3.4 * drop * drop; rig.rotation.x = -0.12 * drop; sheetMat.opacity = bedMat.opacity = 1 - sm((T - 6.5) / 1.2); rig.visible = sheetMat.opacity > 0.01;
+    starMat.roughness = 0.27 - 0.03 * fo; starMat.envMapIntensity = 1.5 + 0.9 * fo;
+    starMat.metalness = 1 - 0.12 * fo; front.intensity = 1.1 * tilt;
+
+    // star: lift, turn to face the viewer, fold along its ridges, then float
+    fold(fo); foldEdges(fo);
+    edgeMat.opacity = Math.max(Math.sin(c01((T - 7.3) / 2.4) * Math.PI) * 0.8, 0.2 * done);
+    var idle = Math.max(0, T - 9);
+    starTilt.position.y = 1.95 * lift + 0.58 * tilt + Math.sin(idle * 0.7) * 0.05 * done;
+    starTilt.rotation.x = (Math.PI / 2) * tilt;
+    starTilt.rotation.y = Math.sin(idle * 0.45) * 0.42 * done + (1 - tilt) * 0.0;
+    starSpin.rotation.y = lift * 0.6 * (1 - tilt) + idle * 0.08;
+    rimL.intensity = 2.4 * done; halo.material.opacity = 0.7 * done;
+
+    for (i = 0; i < flakes.n; i++) {
+      a3 = i * 3; flakes.pos[a3 + 1] -= dt * (0.16 + (i % 7) * 0.02); flakes.pos[a3] += Math.sin(now * 0.0006 + flakes.vel[a3]) * dt * 0.08;
+      if (flakes.pos[a3 + 1] < -0.6) flakes.pos[a3 + 1] = 5.4;
+    }
+    flakes.geo.attributes.position.needsUpdate = true; flakes.mat.opacity = 0.75 * done;
+
+    var u = sm((T - 5.2) / 3.4);
+    pos.lerpVectors(camA, camB, u); tgt.lerpVectors(tgA, tgB, u);
+    var fol = (1 - u) * 0.22, dr = Math.sin(T * 0.35) * 0.25 * (1 - u);       // drift with the head so reflections slide over the metal
+    tgt.x += tmp.x * fol; tgt.z += tmp.z * fol; pos.x += tmp.x * fol + dr; pos.z += tmp.z * fol;
+    pos.sub(tgt).multiplyScalar(1 + (far - 1) * (0.5 + 0.5 * u)).add(tgt);
+    camera.position.copy(pos); camera.lookAt(tgt);
+
+    greet.style.opacity = sm((T - 9.2) / 1.4).toFixed(3);
+    greet.style.transform = 'translateY(' + ((1 - sm((T - 9.2) / 1.4)) * 14).toFixed(1) + 'px)';
+
+    if (composer) composer.render(); else renderer.render(scene, camera);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
