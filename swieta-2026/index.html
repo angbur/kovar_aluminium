@@ -26,7 +26,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17p
 .stage{position:relative;height:100%;overflow:hidden}
 #scene{position:absolute;inset:0;width:100%;height:100%;display:block}
 .vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,rgba(8,9,10,0) 38%,rgba(8,9,10,.7) 100%)}
-.top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 22px;z-index:3}
+.top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:16px 22px;z-index:3}
 .tag{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:3px 9px;border-radius:3px}
 .langs{display:flex;border:1px solid var(--line);border-radius:3px;background:rgba(16,19,21,.7)}
 .langs button,.ctl button{all:unset;cursor:pointer;font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:8px 13px}
@@ -58,7 +58,6 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(40px,7vw,78px);lin
   <div class="vig"></div>
 
   <div class="top">
-    <span class="tag">Projekt do akceptacji</span>
     <div class="langs" role="group" aria-label="Language">
       <button type="button" data-lang="pl" aria-pressed="true">PL</button>
       <button type="button" data-lang="en" aria-pressed="false">EN</button>
@@ -71,7 +70,7 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(40px,7vw,78px);lin
     <h1 id="g-h">Wesołych Świąt</h1>
     <p id="g-p">Dziękujemy za wspólny rok. Życzymy spokojnych Świąt i dobrego początku 2027 roku.</p>
     <div class="rule"></div>
-    <div class="sig"><b>Józefa Haras</b><span id="g-s">Prezes Zarządu, KAMET S.A.</span></div>
+    <div class="sig"><b>Józefa Haras</b></div>
     <!-- Logo: put the official file next to this page as logo.svg and it replaces the text wordmark automatically -->
     <div class="logo"><img src="logo.svg" alt="KAMET S.A." onerror="this.remove()"><span>KAMET S.A.</span></div>
   </div>
@@ -93,9 +92,9 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(40px,7vw,78px);lin
 
   // ---------- words
   var TXT = {
-    en: { h: 'Season’s greetings', p: 'Thank you for a year of working together. We wish you calm holidays and a good start to 2027.', s: 'President of the Board, KAMET S.A.', f: 'For ', replay: 'Replay', skip: 'Skip' },
-    pl: { h: 'Wesołych Świąt', p: 'Dziękujemy za wspólny rok. Życzymy spokojnych Świąt i dobrego początku 2027 roku.', s: 'Prezes Zarządu, KAMET S.A.', f: 'Dla: ', replay: 'Od nowa', skip: 'Pomiń' },
-    de: { h: 'Frohe Festtage', p: 'Vielen Dank für die gemeinsame Arbeit in diesem Jahr. Wir wünschen Ihnen ruhige Feiertage und einen guten Start ins Jahr 2027.', s: 'Vorstandsvorsitzende, KAMET S.A.', f: 'Für ', replay: 'Nochmal', skip: 'Überspringen' }
+    en: { h: 'Season’s greetings', p: 'Thank you for a year of working together. We wish you calm holidays and a good start to 2027.', f: 'For ', replay: 'Replay', skip: 'Skip' },
+    pl: { h: 'Wesołych Świąt', p: 'Dziękujemy za wspólny rok. Życzymy spokojnych Świąt i dobrego początku 2027 roku.', f: 'Dla: ', replay: 'Od nowa', skip: 'Pomiń' },
+    de: { h: 'Frohe Festtage', p: 'Vielen Dank für die gemeinsame Arbeit in diesem Jahr. Wir wünschen Ihnen ruhige Feiertage und einen guten Start ins Jahr 2027.', f: 'Für ', replay: 'Nochmal', skip: 'Überspringen' }
   };
   // the recipient's name can ride in the link as a plain hash, e.g. #Anna-Kowalska
   var who = '';
@@ -104,7 +103,7 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(40px,7vw,78px);lin
   function setLang(l){
     lang = l; var t = TXT[l]; document.documentElement.lang = l;
     document.getElementById('g-h').textContent = t.h; document.getElementById('g-p').textContent = t.p;
-    document.getElementById('g-s').textContent = t.s;
+   
     document.getElementById('for').textContent = who ? t.f + who : '';
     document.getElementById('replay').textContent = t.replay; document.getElementById('skip').textContent = t.skip;
     Array.prototype.forEach.call(document.querySelectorAll('.langs button'), function(b){ b.setAttribute('aria-pressed', b.dataset.lang === l ? 'true' : 'false'); });
@@ -234,18 +233,18 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(40px,7vw,78px);lin
   // soft halo behind the finished star
   var halo = (function(){
     var c = document.createElement('canvas'); c.width = c.height = 256; var x = c.getContext('2d');
-    var g = x.createRadialGradient(128, 128, 0, 128, 128, 128); g.addColorStop(0, 'rgba(255,140,80,.34)'); g.addColorStop(0.35, 'rgba(255,120,60,.1)'); g.addColorStop(0.75, 'rgba(255,120,60,0)'); g.addColorStop(1, 'rgba(255,120,60,0)');
+    var g = x.createRadialGradient(128, 128, 0, 128, 128, 128); g.addColorStop(0, 'rgba(255,140,80,.22)'); g.addColorStop(0.2, 'rgba(255,130,70,.13)'); g.addColorStop(0.45, 'rgba(255,120,60,.055)'); g.addColorStop(0.75, 'rgba(255,120,60,.015)'); g.addColorStop(1, 'rgba(255,120,60,0)');
     x.fillStyle = g; x.fillRect(0, 0, 256, 256);
-    var m = new THREE.Mesh(new THREE.PlaneGeometry(7, 7), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+    var m = new THREE.Mesh(new THREE.PlaneGeometry(11, 11), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
     m.position.set(0, 2.4, -1.6); scene.add(m); return m;
   })();
 
-  var composer = null;
+  var composer = null, bloomPass = null;
   if (THREE.EffectComposer && THREE.RenderPass && THREE.ShaderPass && THREE.UnrealBloomPass && THREE.GammaCorrectionShader) {
     try {
       composer = new THREE.EffectComposer(renderer);
       composer.addPass(new THREE.RenderPass(scene, camera));
-      composer.addPass(new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), 0.42, 0.45, 0.85));
+      bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), 0.4, 0.45, 0.88); composer.addPass(bloomPass);
       composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));
     } catch (err) { composer = null; }
   }
@@ -274,7 +273,7 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(40px,7vw,78px);lin
     var now = performance.now(), dt = Math.min(0.05, (now - last) / 1000); last = now; T += dt;
 
     // timeline: 0.8-4.6 s cut · 5.4-7.4 lift, sheet drops away · 6.8-9 tilt and fold · 9.2 words
-    var cut = c01((T - 0.8) / 3.8), lift = sm((T - 5.4) / 2.0), tilt = sm((T - 6.8) / 1.8), fo = sm((T - 7.3) / 1.7), done = sm((T - 9.0) / 1.5);
+    var cut = c01((T - 0.8) / 3.8), lift = sm((T - 5.4) / 2.0), tilt = sm((T - 6.8) / 1.8), fo = sm((T - 6.9) / 2.1), done = sm((T - 9.0) / 1.5);
     var cutting = T > 0.8 && cut < 1;
 
     var nCut = Math.floor(cut * CUT_N);
@@ -315,18 +314,19 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(40px,7vw,78px);lin
     var free = T >= 4.6;                       // the moment the outline closes
     blank.visible = !free; starTilt.visible = free; sheet.visible = free;
     rig.position.y = -3.4 * drop * drop; rig.rotation.x = -0.12 * drop; sheetMat.opacity = bedMat.opacity = 1 - sm((T - 6.5) / 1.2); rig.visible = sheetMat.opacity > 0.01;
-    starMat.roughness = 0.27 - 0.03 * fo; starMat.envMapIntensity = 1.5 + 0.9 * fo;
-    starMat.metalness = 1 - 0.12 * fo; front.intensity = 1.1 * tilt;
+    var trav = Math.sin(c01((T - 6.4) / 2.9) * Math.PI);          // 0 at rest, 1 mid-flight: the metal goes satin so the turn does not flash
+    starMat.roughness = 0.27 + 0.26 * trav - 0.03 * done; starMat.envMapIntensity = 1.5 * (1 - 0.5 * trav) + 0.9 * done;
+    starMat.metalness = 1 - 0.12 * fo; front.intensity = 1.1 * sm((T - 8.3) / 1.8);
 
     // star: lift, turn to face the viewer, fold along its ridges, then float
     fold(fo); foldEdges(fo);
-    edgeMat.opacity = Math.max(Math.sin(c01((T - 7.3) / 2.4) * Math.PI) * 0.8, 0.2 * done);
+    edgeMat.opacity = Math.max(Math.sin(c01((T - 6.9) / 2.6) * Math.PI) * 0.4, 0.2 * done);
     var idle = Math.max(0, T - 9);
     starTilt.position.y = 1.95 * lift + 0.58 * tilt + Math.sin(idle * 0.7) * 0.05 * done;
     starTilt.rotation.x = (Math.PI / 2) * tilt;
     starTilt.rotation.y = Math.sin(idle * 0.45) * 0.42 * done + (1 - tilt) * 0.0;
     starSpin.rotation.y = lift * 0.6 * (1 - tilt) + idle * 0.08;
-    rimL.intensity = 2.4 * done; halo.material.opacity = 0.7 * done;
+    rimL.intensity = 2.0 * sm((T - 8.6) / 2.4); halo.material.opacity = sm((T - 8.4) / 2.8);
 
     for (i = 0; i < flakes.n; i++) {
       a3 = i * 3; flakes.pos[a3 + 1] -= dt * (0.16 + (i % 7) * 0.02); flakes.pos[a3] += Math.sin(now * 0.0006 + flakes.vel[a3]) * dt * 0.08;
@@ -344,6 +344,8 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(40px,7vw,78px);lin
     greet.style.opacity = sm((T - 9.2) / 1.4).toFixed(3);
     greet.style.transform = 'translateY(' + ((1 - sm((T - 9.2) / 1.4)) * 14).toFixed(1) + 'px)';
 
+    // glow belongs to the laser and sparks; around the finished star it only smears, so it is almost off there
+    if (bloomPass) bloomPass.strength = 0.4 * (1 - sm((T - 5.2) / 0.9)) + 0.07 * done;
     if (composer) composer.render(); else renderer.render(scene, camera);
   }
   requestAnimationFrame(frame);
