@@ -75,8 +75,6 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(40px,7vw,78px);lin
     <!-- Logo: put the official file next to this page as logo.svg and it replaces the text wordmark automatically -->
     <div class="logo"><img src="logo.svg" alt="KAMET S.A." onerror="this.remove()"><span>KAMET S.A.</span></div>
   </div>
-
-  <div class="made" id="g-m">Wycięte, zagięte i wykończone w aluminium.</div>
   <div class="ctl"><button type="button" id="replay">Replay</button><button type="button" id="skip">Skip</button></div>
 </div>
 
@@ -95,9 +93,9 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(40px,7vw,78px);lin
 
   // ---------- words
   var TXT = {
-    en: { h: 'Season’s greetings', p: 'Thank you for a year of working together. We wish you calm holidays and a good start to 2027.', s: 'President of the Board, KAMET S.A.', m: 'Cut, folded and finished in aluminium.', f: 'For ', replay: 'Replay', skip: 'Skip' },
-    pl: { h: 'Wesołych Świąt', p: 'Dziękujemy za wspólny rok. Życzymy spokojnych Świąt i dobrego początku 2027 roku.', s: 'Prezes Zarządu, KAMET S.A.', m: 'Wycięte, zagięte i wykończone w aluminium.', f: 'Dla: ', replay: 'Od nowa', skip: 'Pomiń' },
-    de: { h: 'Frohe Festtage', p: 'Vielen Dank für die gemeinsame Arbeit in diesem Jahr. Wir wünschen Ihnen ruhige Feiertage und einen guten Start ins Jahr 2027.', s: 'Vorstandsvorsitzende, KAMET S.A.', m: 'Geschnitten, gekantet und veredelt in Aluminium.', f: 'Für ', replay: 'Nochmal', skip: 'Überspringen' }
+    en: { h: 'Season’s greetings', p: 'Thank you for a year of working together. We wish you calm holidays and a good start to 2027.', s: 'President of the Board, KAMET S.A.', f: 'For ', replay: 'Replay', skip: 'Skip' },
+    pl: { h: 'Wesołych Świąt', p: 'Dziękujemy za wspólny rok. Życzymy spokojnych Świąt i dobrego początku 2027 roku.', s: 'Prezes Zarządu, KAMET S.A.', f: 'Dla: ', replay: 'Od nowa', skip: 'Pomiń' },
+    de: { h: 'Frohe Festtage', p: 'Vielen Dank für die gemeinsame Arbeit in diesem Jahr. Wir wünschen Ihnen ruhige Feiertage und einen guten Start ins Jahr 2027.', s: 'Vorstandsvorsitzende, KAMET S.A.', f: 'Für ', replay: 'Nochmal', skip: 'Überspringen' }
   };
   // the recipient's name can ride in the link as a plain hash, e.g. #Anna-Kowalska
   var who = '';
@@ -106,7 +104,7 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(40px,7vw,78px);lin
   function setLang(l){
     lang = l; var t = TXT[l]; document.documentElement.lang = l;
     document.getElementById('g-h').textContent = t.h; document.getElementById('g-p').textContent = t.p;
-    document.getElementById('g-s').textContent = t.s; document.getElementById('g-m').textContent = t.m;
+    document.getElementById('g-s').textContent = t.s;
     document.getElementById('for').textContent = who ? t.f + who : '';
     document.getElementById('replay').textContent = t.replay; document.getElementById('skip').textContent = t.skip;
     Array.prototype.forEach.call(document.querySelectorAll('.langs button'), function(b){ b.setAttribute('aria-pressed', b.dataset.lang === l ? 'true' : 'false'); });
